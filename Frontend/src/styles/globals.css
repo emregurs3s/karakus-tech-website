@@ -1,0 +1,148 @@
+@import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Anton', sans-serif;
+  line-height: 1.6;
+  color: #1a1a1a;
+  background-color: #ffffff;
+}
+
+/* Allbirds benzeri smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Anton Font Class */
+.anton-regular {
+  font-family: "Anton", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+@layer components {
+
+  /* Allbirds benzeri button stilleri */
+  .btn-primary {
+    @apply bg-black text-white px-8 py-3 rounded-none font-medium tracking-wide uppercase text-sm hover:bg-gray-800 transition-colors duration-200;
+  }
+
+  .btn-secondary {
+    @apply bg-white text-black border border-black px-8 py-3 rounded-none font-medium tracking-wide uppercase text-sm hover:bg-gray-50 transition-colors duration-200;
+  }
+
+  /* Product card hover effects */
+  .product-card {
+    @apply transition-all duration-300 ease-in-out;
+  }
+
+  .product-card:hover {
+    @apply transform -translate-y-1 shadow-lg;
+  }
+
+  /* Typography - All Caprasimo */
+  .heading-xl {
+    @apply text-4xl md:text-5xl lg:text-6xl tracking-tight;
+  }
+
+  .heading-lg {
+    @apply text-3xl md:text-4xl tracking-tight;
+  }
+
+  .heading-md {
+    @apply text-2xl md:text-3xl tracking-tight;
+  }
+
+  .heading-sm {
+    @apply text-xl md:text-2xl tracking-tight;
+  }
+
+  .body-lg {
+    @apply text-lg leading-relaxed;
+  }
+
+  .body-md {
+    @apply text-base leading-relaxed;
+  }
+
+  .body-sm {
+    @apply text-sm leading-relaxed;
+  }
+}
+
+/* Utility Classes */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Loading Animation */
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Hover Effects */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Gradient Text */
+.gradient-text {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glass Effect */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
