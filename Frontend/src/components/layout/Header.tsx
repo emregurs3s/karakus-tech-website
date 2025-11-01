@@ -1,15 +1,12 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { useCartStore } from '../../store/cartStore';
 import { useAuthStore } from '../../store/authStore';
 import { useCategories } from '../../api/hooks';
 import MiniCart from '../cart/MiniCart';
-import LanguageToggle from '../ui/LanguageToggle';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { t } = useTranslation();
   const { getTotalItems, toggleCart } = useCartStore();
   const { isAuthenticated, user, logout } = useAuthStore();
   const { data: categoriesData } = useCategories();
@@ -53,15 +50,12 @@ const Header = () => {
 
             {/* Search, Auth & Cart */}
             <div className="flex items-center space-x-4">
-              {/* Language Toggle */}
-              <LanguageToggle />
-
               {/* Search */}
               <form onSubmit={handleSearch} className="hidden sm:block">
                 <input
                   type="text"
                   name="search"
-                  placeholder={t('nav.search')}
+                  placeholder="Ürün ara..."
                   className="w-64 px-4 py-2 border border-gray-300 rounded-none focus:outline-none focus:border-black transition-colors duration-200"
                 />
               </form>
@@ -69,20 +63,20 @@ const Header = () => {
               {/* Auth Buttons */}
               {isAuthenticated ? (
                 <div className="hidden sm:flex items-center space-x-4">
-                  <span className="body-sm text-gray-700">{t('auth.hello', { name: user?.name })}</span>
+                  <span className="body-sm text-gray-700">Merhaba, {user?.name}</span>
                   {user?.roles.includes('admin') && (
                     <Link
                       to="/admin"
                       className="text-gray-700 hover:text-black transition-colors duration-200 body-sm font-medium"
                     >
-                      {t('nav.admin')}
+                      Admin
                     </Link>
                   )}
                   <button
                     onClick={logout}
                     className="text-gray-700 hover:text-black transition-colors duration-200 body-sm font-medium"
                   >
-                    {t('nav.logout')}
+                    Çıkış
                   </button>
                 </div>
               ) : (
@@ -91,13 +85,13 @@ const Header = () => {
                     to="/login"
                     className="text-gray-700 hover:text-black transition-colors duration-200 body-sm font-medium"
                   >
-                    {t('nav.login')}
+                    Giriş
                   </Link>
                   <Link
                     to="/register"
                     className="bg-black text-white px-4 py-2 body-sm font-medium hover:bg-gray-800 transition-colors duration-200"
                   >
-                    {t('nav.register')}
+                    Kayıt Ol
                   </Link>
                 </div>
               )}
@@ -169,7 +163,7 @@ const Header = () => {
                   <input
                     type="text"
                     name="search"
-                    placeholder={t('nav.search')}
+                    placeholder="Ürün ara..."
                     className="w-full px-4 py-2 border border-gray-300 rounded-none focus:outline-none focus:border-black"
                   />
                 </form>

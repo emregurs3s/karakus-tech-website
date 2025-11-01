@@ -21,22 +21,20 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
     e.preventDefault();
     e.stopPropagation();
     
-    if (product.colors.length > 0) {
-      addItem({
-        productId: product._id,
-        title: product.title,
-        price: product.price,
-        image: product.images[0],
-        color: product.colors[0],
-        size: 'Standart',
-        stock: product.stock
-      });
-      
-      addToast({
-        message: t('product.addedToCart', { title: product.title }),
-        type: 'success'
-      });
-    }
+    addItem({
+      productId: product._id,
+      title: product.title,
+      price: product.price,
+      image: product.images[0],
+      color: product.colors && product.colors.length > 0 ? product.colors[0] : 'Standart',
+      size: 'Standart',
+      stock: product.stock
+    });
+    
+    addToast({
+      message: t('product.addedToCart', { title: product.title }),
+      type: 'success'
+    });
   };
 
   return (
@@ -51,13 +49,7 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
         <div className="relative overflow-hidden bg-gray-100 aspect-square mb-4">
           {/* Main Image */}
           <img
-            src={
-              product.images && product.images[0] 
-                ? (product.images[0].startsWith('/uploads/') 
-                    ? `http://localhost:5004${product.images[0]}` 
-                    : product.images[0])
-                : 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIiBmaWxsPSIjOTk5Ij5Sb1NpbTwvdGV4dD48L3N2Zz4='
-            }
+            src={product.images?.[0] || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIiBmaWxsPSIjOTk5Ij5Sb1NpbTwvdGV4dD48L3N2Zz4='}
             alt={product.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             onError={(e) => {
@@ -69,10 +61,7 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
           {/* Hover Image */}
           {product.images && product.images[1] && (
             <img
-              src={product.images[1].startsWith('/uploads/') 
-                ? `http://localhost:5004${product.images[1]}` 
-                : product.images[1]
-              }
+              src={product.images[1]}
               alt={product.title}
               className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500"
               onError={(e) => {
@@ -142,28 +131,30 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
             </div>
             
             {/* Color Dots */}
-            <div className="flex space-x-1">
-              {product.colors.slice(0, 3).map((color, colorIndex) => (
-                <div
-                  key={colorIndex}
-                  className="w-4 h-4 rounded-full border border-gray-300 shadow-sm"
-                  style={{
-                    backgroundColor: color === 'Beyaz' ? '#ffffff' :
-                                   color === 'Siyah' ? '#000000' :
-                                   color === 'Gri' ? '#6b7280' :
-                                   color === 'Lacivert' ? '#1e3a8a' :
-                                   color === 'Kahverengi' ? '#92400e' :
-                                   color === 'Bej' ? '#d2b48c' : '#9ca3af'
-                  }}
-                  title={color}
-                />
-              ))}
-              {product.colors.length > 3 && (
-                <div className="w-4 h-4 rounded-full border border-gray-300 bg-gray-100 flex items-center justify-center">
-                  <span className="text-xs text-gray-600">+{product.colors.length - 3}</span>
-                </div>
-              )}
-            </div>
+            {product.colors && product.colors.length > 0 && (
+              <div className="flex space-x-1">
+                {product.colors.slice(0, 3).map((color, colorIndex) => (
+                  <div
+                    key={colorIndex}
+                    className="w-4 h-4 rounded-full border border-gray-300 shadow-sm"
+                    style={{
+                      backgroundColor: color === 'Beyaz' ? '#ffffff' :
+                                     color === 'Siyah' ? '#000000' :
+                                     color === 'Gri' ? '#6b7280' :
+                                     color === 'Lacivert' ? '#1e3a8a' :
+                                     color === 'Kahverengi' ? '#92400e' :
+                                     color === 'Bej' ? '#d2b48c' : '#9ca3af'
+                    }}
+                    title={color}
+                  />
+                ))}
+                {product.colors.length > 3 && (
+                  <div className="w-4 h-4 rounded-full border border-gray-300 bg-gray-100 flex items-center justify-center">
+                    <span className="text-xs text-gray-600">+{product.colors.length - 3}</span>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Rating Stars */}

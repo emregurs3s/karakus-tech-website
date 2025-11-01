@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useTranslation } from 'react-i18next';
+
 
 const Footer = () => {
-  const { t } = useTranslation();
+
   return (
     <footer className="bg-white border-t border-gray-200">
       {/* Newsletter Section */}
@@ -15,18 +15,18 @@ const Footer = () => {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h2 className="heading-lg mb-4">{t('footer.newsletter')}</h2>
+            <h2 className="heading-lg mb-4">Bülten</h2>
             <p className="body-lg text-gray-300 mb-8 max-w-2xl mx-auto">
-              {t('footer.newsletterDesc')}
+              Yeni ürünler ve kampanyalardan haberdar olmak için bültenimize abone olun.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
               <input
                 type="email"
-                placeholder={t('footer.emailPlaceholder')}
+                placeholder="E-posta adresiniz"
                 className="flex-1 px-6 py-4 bg-white text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black transition-all duration-200"
               />
               <button className="bg-white text-black px-8 py-4 font-medium tracking-wide uppercase text-sm hover:bg-gray-100 transition-colors duration-200 rounded-lg">
-                {t('footer.subscribe')}
+                Abone Ol
               </button>
             </div>
             <p className="text-gray-400 text-sm mt-6">
@@ -46,7 +46,7 @@ const Footer = () => {
                 Karakuş Tech
               </h3>
               <p className="text-gray-600 body-md mb-6 max-w-md">
-                {t('footer.description')}
+                En kaliteli teknoloji ürünleri ile hayatınızı kolaylaştırın.
               </p>
               <div className="flex space-x-4">
                 <a
@@ -125,13 +125,20 @@ const Footer = () => {
               <ul className="space-y-3">
                 <li>
                   <a
+                    href="tel:+905441901544"
+                    className="text-gray-600 hover:text-black transition-colors duration-200 body-sm"
+                  >
+                    +90 544 190 15 44
+                  </a>
+                </li>
+                <li>
+                  <a
                     href="#"
                     className="text-gray-600 hover:text-black transition-colors duration-200 body-sm"
                   >
                     {t('footer.contact')}
                   </a>
                 </li>
-
                 <li>
                   <a
                     href="#"

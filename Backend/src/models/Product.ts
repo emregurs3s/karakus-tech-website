@@ -57,7 +57,7 @@ const productSchema = new Schema<IProduct>({
   },
   colors: [{
     type: String,
-    required: true
+    required: false
   }],
   sizes: [{
     type: String,

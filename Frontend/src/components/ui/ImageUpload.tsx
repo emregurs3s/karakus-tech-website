@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { useAuthStore } from '../../store/authStore';
 
@@ -27,6 +27,11 @@ const ImageUpload = ({
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { token } = useAuthStore();
+
+  // Update images when initialImages prop changes
+  useEffect(() => {
+    setImages(initialImages);
+  }, [initialImages]);
 
   const handleFileSelect = async (files: FileList) => {
     if (!files.length) return;
@@ -82,7 +87,7 @@ const ImageUpload = ({
         return;
       }
       
-      const response = await axios.post(`http://localhost:5004${endpoint}`, formData, {
+      const response = await axios.post(endpoint, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${token}`
@@ -113,21 +118,25 @@ const ImageUpload = ({
   };
 
   const handleRemoveImage = async (imageUrl: string) => {
+    // Önce listeden kaldır
+    const updatedImages = images.filter(img => img !== imageUrl);
+    setImages(updatedImages);
+    onImagesChange(updatedImages);
+
+    // Sonra backend'den silmeye çalış (sessizce)
     try {
       const filename = imageUrl.split('/').pop();
       
-      await axios.delete(`http://localhost:5004/api/admin/upload/${filename}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      const updatedImages = images.filter(img => img !== imageUrl);
-      setImages(updatedImages);
-      onImagesChange(updatedImages);
-    } catch (error) {
-      console.error('Delete error:', error);
-      alert('Dosya silinirken hata oluştu');
+      if (imageUrl.startsWith('/uploads/') && filename) {
+        await axios.delete(`/api/admin/upload/${filename}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+      }
+    } catch (error: any) {
+      // Sessizce hata yönet, kullanıcıya gösterme
+      console.warn('Dosya backend\'den silinemedi (bu normal olabilir):', error.response?.status);
     }
   };
 
@@ -203,7 +212,7 @@ const ImageUpload = ({
           {images.map((imageUrl, index) => (
             <div key={index} className="relative group">
               <img
-                src={`http://localhost:5004${imageUrl}`}
+                src={imageUrl}
                 alt={`Upload ${index + 1}`}
                 className="w-full h-32 object-cover rounded-lg border border-gray-200"
               />

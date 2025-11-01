@@ -63,7 +63,7 @@ const ShopierPayment = ({ onPaymentStart, onPaymentError }: ShopierPaymentProps)
     try {
       const token = localStorage.getItem('token');
       const response = await axios.post(
-        'http://localhost:5004/api/payment/create-shopier-payment',
+        '/api/payment/create-shopier-payment',
         {
           cartItems: items,
           totalAmount: getTotalPrice(),

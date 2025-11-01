@@ -44,7 +44,7 @@ const FloatingActionButton = () => {
             
             <div className="space-y-3">
               <a
-                href="tel:+905551234567"
+                href="tel:+905441901544"
                 className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200 group"
               >
                 <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-green-200 transition-colors duration-200">
@@ -52,7 +52,7 @@ const FloatingActionButton = () => {
                 </div>
                 <div>
                   <div className="body-sm font-medium text-gray-900">Müşteri Hizmetleri</div>
-                  <div className="text-xs text-gray-500">0555 123 45 67</div>
+                  <div className="text-xs text-gray-500">+90 544 190 15 44</div>
                 </div>
               </a>
               

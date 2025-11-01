@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useCategories, useCreateProduct, useUpdateProduct } from '../../api/hooks';
 import { useToastStore } from '../ui/Toast';
@@ -20,7 +20,7 @@ const ProductForm = ({ product, onClose, onSuccess }: ProductFormProps) => {
     originalPrice: 0,
     images: [''],
     category: '',
-    colors: [''],
+    colors: [] as string[],
     sizes: ['Standart'], // Teknoloji ürünleri için varsayılan
     stock: 0,
     sku: '',
@@ -46,9 +46,9 @@ const ProductForm = ({ product, onClose, onSuccess }: ProductFormProps) => {
         description: product.description || '',
         price: product.price || 0,
         originalPrice: product.originalPrice || 0,
-        images: product.images || [''],
+        images: product.images || [],
         category: product.category?._id || '',
-        colors: product.colors || [''],
+        colors: product.colors || [],
         sizes: product.sizes || ['Standart'],
         stock: product.stock || 0,
         sku: product.sku || '',
@@ -84,7 +84,7 @@ const ProductForm = ({ product, onClose, onSuccess }: ProductFormProps) => {
     // Clean data
     const cleanData = {
       ...formData,
-      images: formData.images.filter(img => img.trim() !== ''),
+      images: validImages,
       colors: formData.colors.filter(color => color.trim() !== ''),
       sizes: ['Standart'], // Teknoloji ürünleri için sabit
       originalPrice: formData.originalPrice || undefined
@@ -101,13 +101,18 @@ const ProductForm = ({ product, onClose, onSuccess }: ProductFormProps) => {
         response = await createProductMutation.mutateAsync(cleanData);
       }
 
-      if (response.success) {
+      if (response?.success) {
         addToast({
           message: isEditing ? 'Ürün başarıyla güncellendi' : 'Ürün başarıyla oluşturuldu',
           type: 'success'
         });
         queryClient.invalidateQueries({ queryKey: ['admin', 'products'] });
         onSuccess();
+      } else {
+        addToast({
+          message: 'İşlem başarısız oldu',
+          type: 'error'
+        });
       }
     } catch (error: any) {
       addToast({
@@ -147,10 +152,13 @@ const ProductForm = ({ product, onClose, onSuccess }: ProductFormProps) => {
   };
 
   const removeArrayItem = (field: 'images' | 'colors', index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: prev[field].filter((_, i) => i !== index)
-    }));
+    setFormData(prev => {
+      const newArray = prev[field].filter((_, i) => i !== index);
+      return {
+        ...prev,
+        [field]: newArray
+      };
+    });
   };
 
   const updateArrayItem = (field: 'images' | 'colors', index: number, value: string) => {
@@ -159,6 +167,10 @@ const ProductForm = ({ product, onClose, onSuccess }: ProductFormProps) => {
       [field]: prev[field].map((item, i) => i === index ? value : item)
     }));
   };
+
+  const handleImagesChange = useCallback((images: string[]) => {
+    setFormData(prev => ({ ...prev, images }));
+  }, []);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -318,7 +330,7 @@ const ProductForm = ({ product, onClose, onSuccess }: ProductFormProps) => {
               Ürün Resimleri *
             </label>
             <ImageUpload
-              onImagesChange={(images) => setFormData(prev => ({ ...prev, images }))}
+              onImagesChange={handleImagesChange}
               initialImages={formData.images.filter(img => img.trim() !== '')}
               multiple={true}
               maxFiles={5}
@@ -331,18 +343,18 @@ const ProductForm = ({ product, onClose, onSuccess }: ProductFormProps) => {
           {/* Renkler */}
           <div>
             <label className="block body-sm font-medium text-gray-700 mb-2">
-              Renkler/Varyantlar *
+              Renkler/Varyantlar
             </label>
-            {formData.colors.map((color, index) => (
-              <div key={index} className="flex items-center space-x-2 mb-2">
-                <input
-                  type="text"
-                  value={color}
-                  onChange={(e) => updateArrayItem('colors', index, e.target.value)}
-                  placeholder="örn: Siyah, Beyaz, 64GB, 128GB"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                />
-                {formData.colors.length > 1 && (
+            {formData.colors.length > 0 ? (
+              formData.colors.map((color, index) => (
+                <div key={index} className="flex items-center space-x-2 mb-2">
+                  <input
+                    type="text"
+                    value={color}
+                    onChange={(e) => updateArrayItem('colors', index, e.target.value)}
+                    placeholder="örn: Siyah, Beyaz, 64GB, 128GB"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                  />
                   <button
                     type="button"
                     onClick={() => removeArrayItem('colors', index)}
@@ -352,9 +364,11 @@ const ProductForm = ({ product, onClose, onSuccess }: ProductFormProps) => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
                   </button>
-                )}
-              </div>
-            ))}
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-500 text-sm mb-2">Henüz varyant eklenmedi</p>
+            )}
             <button
               type="button"
               onClick={() => addArrayItem('colors')}
@@ -362,7 +376,7 @@ const ProductForm = ({ product, onClose, onSuccess }: ProductFormProps) => {
             >
               + Varyant Ekle
             </button>
-            <p className="text-xs text-gray-500 mt-1">Renk, kapasite, model gibi varyantları ekleyin</p>
+            <p className="text-xs text-gray-500 mt-1">Renk, kapasite, model gibi varyantları ekleyin (opsiyonel)</p>
           </div>
 
 

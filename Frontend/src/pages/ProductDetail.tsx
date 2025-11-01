@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -20,6 +20,15 @@ const ProductDetail = () => {
   const [selectedColor, setSelectedColor] = useState('');
   const [selectedSize] = useState('Standart');
   const [quantity, setQuantity] = useState(1);
+
+  // Set initial color when product loads
+  useEffect(() => {
+    if (product && product.colors && product.colors.length > 0) {
+      setSelectedColor(product.colors[0]);
+    } else if (product) {
+      setSelectedColor('Standart');
+    }
+  }, [product]);
 
   if (isLoading) {
     return (
@@ -43,7 +52,8 @@ const ProductDetail = () => {
   }
 
   const handleAddToCart = () => {
-    if (!selectedColor) {
+    // Only check for color if product has colors
+    if (product.colors && product.colors.length > 0 && !selectedColor) {
       addToast({
         message: 'Lütfen bir varyant seçiniz',
         type: 'warning'
@@ -102,11 +112,7 @@ const ProductDetail = () => {
             >
               <img
                 src={
-                  product.images && product.images[selectedImage]
-                    ? (product.images[selectedImage].startsWith('/uploads/') 
-                        ? `http://localhost:5004${product.images[selectedImage]}` 
-                        : product.images[selectedImage])
-                    : 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjYwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMjQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIiBmaWxsPSIjOTk5Ij5Sb1NpbTwvdGV4dD48L3N2Zz4='
+                  product.images?.[selectedImage] || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjYwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMjQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIiBmaWxsPSIjOTk5Ij5Sb1NpbTwvdGV4dD48L3N2Zz4='
                 }
                 alt={product.title}
                 className="w-full h-full object-cover"
@@ -129,11 +135,7 @@ const ProductDetail = () => {
                     }`}
                   >
                     <img
-                      src={
-                        image && image.startsWith('/uploads/') 
-                          ? `http://localhost:5004${image}` 
-                          : image || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2RkZCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjEyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSIgZmlsbD0iIzk5OSI+Tm8gSW1hZ2U8L3RleHQ+PC9zdmc+'
-                      }
+                      src={image || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2RkZCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjEyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSIgZmlsbD0iIzk5OSI+Tm8gSW1hZ2U8L3RleHQ+PC9zdmc+'}
                       alt={`${product.title} ${index + 1}`}
                       className="w-full h-full object-cover"
                       onError={(e) => {
@@ -182,30 +184,32 @@ const ProductDetail = () => {
             </motion.div>
 
             {/* Variant Selection */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-            >
-              <h3 className="font-medium text-black mb-4 tracking-wide uppercase text-sm">
-                Varyant: {selectedColor}
-              </h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {product.colors.map((color) => (
-                  <button
-                    key={color}
-                    onClick={() => setSelectedColor(color)}
-                    className={`py-3 px-4 border text-sm font-medium transition-all duration-200 ${
-                      selectedColor === color
-                        ? 'border-black bg-black text-white'
-                        : 'border-gray-300 hover:border-black'
-                    }`}
-                  >
-                    {color}
-                  </button>
-                ))}
-              </div>
-            </motion.div>
+            {product.colors && product.colors.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+              >
+                <h3 className="font-medium text-black mb-4 tracking-wide uppercase text-sm">
+                  Varyant: {selectedColor}
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {product.colors.map((color) => (
+                    <button
+                      key={color}
+                      onClick={() => setSelectedColor(color)}
+                      className={`py-3 px-4 border text-sm font-medium transition-all duration-200 ${
+                        selectedColor === color
+                          ? 'border-black bg-black text-white'
+                          : 'border-gray-300 hover:border-black'
+                      }`}
+                    >
+                      {color}
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
 
 
 

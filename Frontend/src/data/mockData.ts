@@ -4,5 +4,5 @@ export const heroContent = {
   title: 'Teknolojinin Gücüyle İleriye',
   subtitle: 'En yeni teknoloji ürünleri ile hayatınızı kolaylaştırın',
   buttonText: 'Ürünleri Keşfet',
-  backgroundImage: '/hero-bg.jpg'
+  backgroundImage: '/images/hero-bg.png'
 };

@@ -35,8 +35,8 @@ app.use(helmet({
   contentSecurityPolicy: false
 }));
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://yourdomain.com'] 
+  origin: process.env.NODE_ENV === 'production'
+    ? ['https://yourdomain.com']
     : true, // Allow all origins in development
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'],
@@ -65,17 +65,17 @@ app.use('/uploads', (req, res, next) => {
   res.header('Access-Control-Max-Age', '86400'); // 24 hours
   res.header('Cross-Origin-Resource-Policy', 'cross-origin');
   res.header('Cross-Origin-Embedder-Policy', 'unsafe-none');
-  
+
   // Handle preflight requests
   if (req.method === 'OPTIONS') {
     res.sendStatus(200);
     return;
   }
-  
+
   // Set cache headers for images
   res.header('Cache-Control', 'public, max-age=31536000'); // 1 year
   res.header('Vary', 'Origin');
-  
+
   next();
 }, express.static(path.join(process.cwd(), 'uploads'), {
   // Static file options
@@ -89,10 +89,21 @@ app.use('/uploads', (req, res, next) => {
   }
 }));
 
+// Serve public files (images, etc.)
+app.use('/images', express.static(path.join(process.cwd(), 'public/images'), {
+  maxAge: '1y',
+  etag: true,
+  lastModified: true,
+  setHeaders: (res, path) => {
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+  }
+}));
+
 // Health check
 app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
+  res.json({
+    status: 'OK',
     timestamp: new Date().toISOString(),
     uptime: process.uptime()
   });
@@ -105,18 +116,28 @@ app.use('/api/auth', authRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/payment', paymentRouter);
 
-// 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({
-    success: false,
-    message: 'Route not found'
-  });
+// Serve frontend build files
+app.use(express.static(path.join(process.cwd(), '../Frontend/dist')));
+
+// Catch all handler: send back React's index.html file for SPA routing
+app.get('*', (req, res) => {
+  // Skip API routes
+  if (req.path.startsWith('/api') || req.path.startsWith('/uploads') || req.path.startsWith('/images')) {
+    return res.status(404).json({
+      success: false,
+      message: 'Route not found'
+    });
+  }
+  
+  res.sendFile(path.join(process.cwd(), '../Frontend/dist/index.html'));
 });
+
+
 
 // Error handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error('Error:', err);
-  
+
   res.status(err.status || 500).json({
     success: false,
     message: err.message || 'Internal server error',

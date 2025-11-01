@@ -116,7 +116,7 @@ const productSchema = z.object({
   originalPrice: z.number().optional(),
   images: z.array(z.string()).min(1, 'En az bir resim gerekli'),
   category: z.string().min(1, 'Kategori gerekli'),
-  colors: z.array(z.string()).min(1, 'En az bir renk gerekli'),
+  colors: z.array(z.string()).optional().default([]),
   sizes: z.array(z.string()).optional().default(['Standart']),
   stock: z.number().min(0, 'Stok 0\'dan küçük olamaz'),
   sku: z.string().min(1, 'SKU gerekli'),
@@ -250,27 +250,61 @@ router.post('/products', async (req, res) => {
 // PUT /api/admin/products/:id - Update product
 router.put('/products/:id', async (req, res) => {
   try {
-    const validatedData = productSchema.parse(req.body);
-    
-    const product = await Product.findByIdAndUpdate(
-      req.params.id,
-      validatedData,
-      { new: true, runValidators: true }
-    ).populate('category', 'name slug');
-
-    if (!product) {
+    // Önce ürünün var olup olmadığını kontrol et
+    const existingProduct = await Product.findById(req.params.id);
+    if (!existingProduct) {
       return res.status(404).json({
         success: false,
         message: 'Ürün bulunamadı'
       });
     }
 
+    const validatedData = productSchema.parse(req.body);
+    
+    // Check if SKU already exists for another product
+    if (validatedData.sku && validatedData.sku !== existingProduct.sku) {
+      const duplicateSku = await Product.findOne({ 
+        sku: validatedData.sku, 
+        _id: { $ne: req.params.id } 
+      });
+      
+      if (duplicateSku) {
+        return res.status(400).json({
+          success: false,
+          message: 'Bu SKU zaten başka bir ürün tarafından kullanılıyor'
+        });
+      }
+    }
+
+    // Check if slug already exists for another product
+    if (validatedData.slug && validatedData.slug !== existingProduct.slug) {
+      const duplicateSlug = await Product.findOne({ 
+        slug: validatedData.slug, 
+        _id: { $ne: req.params.id } 
+      });
+      
+      if (duplicateSlug) {
+        return res.status(400).json({
+          success: false,
+          message: 'Bu URL adı zaten başka bir ürün tarafından kullanılıyor'
+        });
+      }
+    }
+    
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+      validatedData,
+      { new: true, runValidators: true }
+    ).populate('category', 'name slug');
+
     res.json({
       success: true,
       message: 'Ürün başarıyla güncellendi',
-      data: product
+      data: updatedProduct
     });
   } catch (error: any) {
+    console.error('Update product error:', error);
+    
     if (error.name === 'ZodError') {
       return res.status(400).json({
         success: false,
@@ -278,7 +312,14 @@ router.put('/products/:id', async (req, res) => {
       });
     }
     
-    console.error('Update product error:', error);
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyPattern)[0];
+      return res.status(400).json({
+        success: false,
+        message: `Bu ${field === 'sku' ? 'SKU' : field === 'slug' ? 'URL adı' : field} zaten kullanılıyor`
+      });
+    }
+    
     res.status(500).json({
       success: false,
       message: 'Ürün güncellenirken hata oluştu'
