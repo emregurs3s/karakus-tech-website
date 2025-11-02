@@ -173,13 +173,14 @@ const ProductForm = ({ product, onClose, onSuccess }: ProductFormProps) => {
   }, []);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
-      >
-        <div className="p-6 border-b border-gray-200">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto" style={{ scrollBehavior: 'auto' }}>
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-white rounded-lg shadow-xl max-w-4xl w-full my-8"
+        >
+          <div className="p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
           <div className="flex justify-between items-center">
             <h2 className="heading-md">
               {isEditing ? 'Ürün Düzenle' : 'Yeni Ürün Ekle'}
@@ -435,7 +436,8 @@ const ProductForm = ({ product, onClose, onSuccess }: ProductFormProps) => {
             </button>
           </div>
         </form>
-      </motion.div>
+        </motion.div>
+      </div>
     </div>
   );
 };

@@ -135,10 +135,12 @@ const ImageUpload = ({
           <div className={`grid gap-4 ${multiple ? 'grid-cols-2 md:grid-cols-3' : 'grid-cols-1'}`}>
             {images.map((imageUrl, index) => (
               <div key={index} className="relative group">
-                <div className="bg-gray-100 rounded-lg overflow-hidden" style={{ paddingBottom: '100%', position: 'relative' }}>
+                <div className="bg-gray-100 rounded-lg overflow-hidden" style={{ paddingBottom: '100%', position: 'relative', minHeight: '200px' }}>
                   <img
                     src={imageUrl}
                     alt={`Preview ${index + 1}`}
+                    width="400"
+                    height="400"
                     loading="lazy"
                     className="absolute inset-0 w-full h-full object-cover"
                     onError={(e) => {

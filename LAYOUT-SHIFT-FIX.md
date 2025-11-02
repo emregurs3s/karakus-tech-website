@@ -40,11 +40,21 @@ Scroll atarken ürün kartları hareket ediyor ve üst üste biniyor gibi görü
 - ✅ **Checkout.tsx**: Ödeme resimlerine `width="64"` `height="64"`
 - ✅ Aspect ratio korunarak layout shift tamamen önlendi
 
+### 7. Admin Panel Scroll Problemi Düzeltildi
+- ✅ **ProductForm.tsx**: Modal scroll container'ı yeniden yapılandırıldı
+- ✅ Modal artık `overflow-y-auto` ile dış container'da scroll yapıyor
+- ✅ Header sticky yapıldı, içerik scroll ediyor
+- ✅ `scroll-behavior: auto` ile smooth scroll devre dışı bırakıldı
+- ✅ **ImageUpload.tsx**: Resim önizlemelerine `width="400"` `height="400"` ve `minHeight: 200px` eklendi
+- ✅ **AdminProducts.tsx**: Tablo resimlerine `width="48"` `height="48"` eklendi
+- ✅ Resim ekleme/silme işlemlerinde scroll artık stabil
+
 ## Sonuç
 ✅ Layout shift tamamen önlendi
 ✅ Scroll performansı artırıldı
 ✅ Resim yükleme optimize edildi
 ✅ GPU hızlandırma aktif
+✅ Admin panel scroll problemi çözüldü
 
 ## Deploy Notları
 1. Backend'i Render'a deploy et
