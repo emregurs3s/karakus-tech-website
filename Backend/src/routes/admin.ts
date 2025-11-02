@@ -10,97 +10,28 @@ import { uploadMultiple, uploadSingle } from '../middleware/upload.js';
 
 const router = express.Router();
 
-// POST /api/admin/upload/single - Upload single image
+// POST /api/admin/upload/single - DISABLED: Use URL input instead
 router.post('/upload/single', authenticateToken, requireAdmin, (req, res) => {
-  uploadSingle(req, res, (err) => {
-    if (err) {
-      return res.status(400).json({
-        success: false,
-        message: err.message
-      });
-    }
-
-    if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: 'Dosya yüklenmedi'
-      });
-    }
-
-    const imageUrl = `/uploads/${req.file.filename}`;
-    
-    res.json({
-      success: true,
-      message: 'Dosya başarıyla yüklendi',
-      data: {
-        url: imageUrl,
-        filename: req.file.filename,
-        originalName: req.file.originalname,
-        size: req.file.size
-      }
-    });
+  res.status(410).json({
+    success: false,
+    message: 'File upload disabled. Please use image URLs from GitHub repository.'
   });
 });
 
-// POST /api/admin/upload/multiple - Upload multiple images
+// POST /api/admin/upload/multiple - DISABLED: Use URL input instead  
 router.post('/upload/multiple', authenticateToken, requireAdmin, (req, res) => {
-  uploadMultiple(req, res, (err) => {
-    if (err) {
-      return res.status(400).json({
-        success: false,
-        message: err.message
-      });
-    }
-
-    if (!req.files || (req.files as Express.Multer.File[]).length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'Dosya yüklenmedi'
-      });
-    }
-
-    const files = req.files as Express.Multer.File[];
-    const uploadedFiles = files.map(file => ({
-      url: `/uploads/${file.filename}`,
-      filename: file.filename,
-      originalName: file.originalname,
-      size: file.size
-    }));
-    
-    res.json({
-      success: true,
-      message: 'Dosyalar başarıyla yüklendi',
-      data: uploadedFiles
-    });
+  res.status(410).json({
+    success: false,
+    message: 'File upload disabled. Please use image URLs from GitHub repository.'
   });
 });
 
-// DELETE /api/admin/upload/:filename - Delete uploaded file
+// DELETE /api/admin/upload/:filename - DISABLED: Use URL input instead
 router.delete('/upload/:filename', authenticateToken, requireAdmin, async (req, res) => {
-  try {
-    const filename = req.params.filename;
-    const filePath = path.join(process.cwd(), 'uploads', filename);
-    
-    // Check if file exists
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-      res.json({
-        success: true,
-        message: 'Dosya başarıyla silindi'
-      });
-    } else {
-      res.status(404).json({
-        success: false,
-        message: 'Dosya bulunamadı'
-      });
-    }
-  } catch (error) {
-    console.error('Delete file error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Dosya silinirken hata oluştu'
-    });
-  }
+  res.status(410).json({
+    success: false,
+    message: 'File deletion disabled. Images are hosted on GitHub.'
+  });
 });
 
 // Apply auth middleware to all other admin routes
@@ -427,4 +358,95 @@ router.get('/users', async (req, res) => {
   }
 });
 
-export default router;
+export default router;// Or
+der Management Routes
+import Order from '../models/Order.js';
+
+// GET /api/admin/orders - Get all orders for admin
+router.get('/orders', async (req, res) => {
+  try {
+    const { page = 1, limit = 10, status, search } = req.query;
+    
+    const query: any = {};
+    if (status && status !== 'all') {
+      query.status = status;
+    }
+    
+    if (search) {
+      query.$or = [
+        { orderId: { $regex: search, $options: 'i' } },
+        { 'shippingAddress.fullName': { $regex: search, $options: 'i' } },
+        { 'shippingAddress.phone': { $regex: search, $options: 'i' } }
+      ];
+    }
+    
+    const skip = (Number(page) - 1) * Number(limit);
+    
+    const [orders, total] = await Promise.all([
+      Order.find(query)
+        .populate('user', 'name email')
+        .populate('items.product', 'title images')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(Number(limit)),
+      Order.countDocuments(query)
+    ]);
+    
+    res.json({
+      success: true,
+      data: orders,
+      totalPages: Math.ceil(total / Number(limit)),
+      currentPage: Number(page),
+      total
+    });
+  } catch (error) {
+    console.error('Get admin orders error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Siparişler alınırken hata oluştu'
+    });
+  }
+});
+
+// PATCH /api/admin/orders/:orderId/status - Update order status
+router.patch('/orders/:orderId/status', async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { status } = req.body;
+    
+    const validStatuses = ['pending', 'paid', 'processing', 'shipped', 'delivered', 'cancelled'];
+    
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Geçersiz sipariş durumu'
+      });
+    }
+    
+    const order = await Order.findByIdAndUpdate(
+      orderId,
+      { status, updatedAt: new Date() },
+      { new: true }
+    ).populate('user', 'name email')
+     .populate('items.product', 'title images');
+    
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Sipariş bulunamadı'
+      });
+    }
+    
+    res.json({
+      success: true,
+      message: 'Sipariş durumu güncellendi',
+      data: order
+    });
+  } catch (error) {
+    console.error('Update order status error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Sipariş durumu güncellenirken hata oluştu'
+    });
+  }
+});

@@ -30,7 +30,7 @@ const Header = () => {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to="/" className="flex-shrink-0">
-              <h1 className="heading-md text-black">
+              <h1 className="text-xl font-bold text-black">
                 Karakuş Tech
               </h1>
             </Link>
@@ -64,6 +64,12 @@ const Header = () => {
               {isAuthenticated ? (
                 <div className="hidden sm:flex items-center space-x-4">
                   <span className="body-sm text-gray-700">Merhaba, {user?.name}</span>
+                  <Link
+                    to="/my-orders"
+                    className="text-gray-700 hover:text-black transition-colors duration-200 body-sm font-medium"
+                  >
+                    Siparişlerim
+                  </Link>
                   {user?.roles.includes('admin') && (
                     <Link
                       to="/admin"
@@ -92,6 +98,20 @@ const Header = () => {
                     className="bg-black text-white px-4 py-2 body-sm font-medium hover:bg-gray-800 transition-colors duration-200"
                   >
                     Kayıt Ol
+                  </Link>
+                </div>
+              )}
+
+              {/* Mobile Auth Buttons - Show only on mobile */}
+              {!isAuthenticated && (
+                <div className="flex items-center space-x-2 md:hidden">
+                  <Link
+                    to="/login"
+                    className="p-2 text-gray-700 hover:text-black transition-colors duration-200"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
                   </Link>
                 </div>
               )}
@@ -179,6 +199,57 @@ const Header = () => {
                     {category.name}
                   </Link>
                 ))}
+                
+                {/* Mobile Auth Buttons */}
+                <div className="border-t border-gray-200 pt-4 mt-4">
+                  {isAuthenticated ? (
+                    <div className="flex flex-col space-y-3">
+                      <span className="body-sm text-gray-700">Merhaba, {user?.name}</span>
+                      <Link
+                        to="/my-orders"
+                        className="text-gray-700 hover:text-black transition-colors duration-200 body-sm font-medium"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Siparişlerim
+                      </Link>
+                      {user?.roles.includes('admin') && (
+                        <Link
+                          to="/admin"
+                          className="text-gray-700 hover:text-black transition-colors duration-200 body-sm font-medium"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          Admin Panel
+                        </Link>
+                      )}
+                      <button
+                        onClick={() => {
+                          logout();
+                          setIsMenuOpen(false);
+                        }}
+                        className="text-left text-gray-700 hover:text-black transition-colors duration-200 body-sm font-medium"
+                      >
+                        Çıkış Yap
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col space-y-3">
+                      <Link
+                        to="/login"
+                        className="text-gray-700 hover:text-black transition-colors duration-200 body-sm font-medium"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Giriş Yap
+                      </Link>
+                      <Link
+                        to="/register"
+                        className="bg-black text-white px-4 py-2 body-sm font-medium hover:bg-gray-800 transition-colors duration-200 text-center"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Kayıt Ol
+                      </Link>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}

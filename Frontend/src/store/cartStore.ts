@@ -11,6 +11,11 @@ export interface CartItem {
   size: string;
   quantity: number;
   stock?: number;
+  product?: {
+    _id: string;
+    title: string;
+    price: number;
+  };
 }
 
 interface CartStore {

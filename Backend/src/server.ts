@@ -13,12 +13,24 @@ import productsRouter from './routes/products.js';
 import authRouter from './routes/auth.js';
 import adminRouter from './routes/admin.js';
 import paymentRouter from './routes/payment.js';
+import ordersRouter from './routes/orders.js';
 
 // Load environment variables
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+// Handle PORT safely
+const portEnv = process.env.PORT;
+let PORT = 10000;
+
+if (portEnv) {
+  const parsedPort = parseInt(portEnv, 10);
+  if (!isNaN(parsedPort) && parsedPort > 0 && parsedPort < 65536) {
+    PORT = parsedPort;
+  } else {
+    console.log(`⚠️ Invalid PORT value: ${portEnv}. Using default: 10000`);
+  }
+}
 
 // Connect to MongoDB
 connectDB();
@@ -36,7 +48,7 @@ app.use(helmet({
 }));
 app.use(cors({
   origin: process.env.NODE_ENV === 'production'
-    ? ['https://yourdomain.com']
+    ? ['https://karakustech.com', 'https://www.karakustech.com']
     : true, // Allow all origins in development
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'],
@@ -77,7 +89,9 @@ app.use('/uploads', (req, res, next) => {
   res.header('Vary', 'Origin');
 
   next();
-}, express.static(path.join(process.cwd(), 'uploads'), {
+}, express.static(process.env.NODE_ENV === 'production' 
+  ? path.join('/tmp', 'uploads')
+  : path.join(process.cwd(), 'uploads'), {
   // Static file options
   maxAge: '1y',
   etag: true,
@@ -109,27 +123,40 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Seed endpoint for development/production
+app.get('/api/seed', async (req, res) => {
+  try {
+    // Import seed function dynamically
+    const { default: runSeed } = await import('./scripts/seedData.js');
+    await runSeed();
+    res.json({
+      success: true,
+      message: 'Database seeded successfully'
+    });
+  } catch (error) {
+    console.error('Seed error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Seed failed',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
 // API Routes
 app.use('/api/categories', categoriesRouter);
 app.use('/api/products', productsRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/payment', paymentRouter);
+app.use('/api/orders', ordersRouter);
 
-// Serve frontend build files
-app.use(express.static(path.join(process.cwd(), '../Frontend/dist')));
-
-// Catch all handler: send back React's index.html file for SPA routing
-app.get('*', (req, res) => {
-  // Skip API routes
-  if (req.path.startsWith('/api') || req.path.startsWith('/uploads') || req.path.startsWith('/images')) {
-    return res.status(404).json({
-      success: false,
-      message: 'Route not found'
-    });
-  }
-  
-  res.sendFile(path.join(process.cwd(), '../Frontend/dist/index.html'));
+// API 404 handler - only for API routes
+app.use('/api/*', (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: 'API route not found'
+  });
 });
 
 

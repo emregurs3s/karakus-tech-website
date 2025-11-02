@@ -6,6 +6,7 @@ import { useAdminDashboard } from '../api/hooks';
 import AdminProducts from '../components/admin/AdminProducts';
 import AdminUsers from '../components/admin/AdminUsers';
 import AdminStock from '../components/admin/AdminStock';
+import AdminOrders from '../components/admin/AdminOrders';
 
 const Admin = () => {
   const { isAuthenticated, isAdmin } = useAuthStore();
@@ -28,6 +29,8 @@ const Admin = () => {
         return <AdminProducts />;
       case 'users':
         return <AdminUsers />;
+      case 'orders':
+        return <AdminOrders />;
       case 'stock':
         return <AdminStock />;
       default:
@@ -137,6 +140,7 @@ const Admin = () => {
             {[
               { id: 'dashboard', name: 'Dashboard', icon: '📊' },
               { id: 'products', name: 'Ürün Yönetimi', icon: '📦' },
+              { id: 'orders', name: 'Sipariş Yönetimi', icon: '🛒' },
               { id: 'users', name: 'Kullanıcı Yönetimi', icon: '👥' },
               { id: 'stock', name: 'Stok Kontrolü', icon: '⚠️' }
             ].map((tab) => (

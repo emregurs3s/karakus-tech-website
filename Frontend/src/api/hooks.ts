@@ -138,4 +138,24 @@ export const useUpdateProduct = () => {
     mutationFn: ({ id, data }: { id: string; data: any }) =>
       apiClient.put(`/admin/products/${id}`, data),
   });
+};// Order M
+anagement hooks
+export const useAdminOrders = (filters: any = {}) => {
+  return useQuery({
+    queryKey: ['admin', 'orders', filters],
+    queryFn: () => {
+      const params = new URLSearchParams();
+      Object.keys(filters).forEach(key => {
+        if (filters[key]) params.append(key, filters[key]);
+      });
+      return apiClient.get(`/admin/orders?${params.toString()}`);
+    },
+  });
+};
+
+export const useUpdateOrderStatus = () => {
+  return useMutation({
+    mutationFn: ({ orderId, status }: { orderId: string; status: string }) =>
+      apiClient.patch(`/admin/orders/${orderId}/status`, { status }),
+  });
 };

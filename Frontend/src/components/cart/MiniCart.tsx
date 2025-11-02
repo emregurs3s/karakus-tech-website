@@ -117,13 +117,22 @@ const MiniCart = () => {
                     ₺{getTotalPrice().toFixed(2)}
                   </span>
                 </div>
-                <Link
-                  to="/cart"
-                  onClick={toggleCart}
-                  className="btn-primary w-full text-center block mb-3"
-                >
-                  Sepeti Görüntüle
-                </Link>
+                <div className="space-y-3">
+                  <Link
+                    to="/checkout"
+                    onClick={toggleCart}
+                    className="btn-primary w-full text-center block"
+                  >
+                    Ödemeye Geç
+                  </Link>
+                  <Link
+                    to="/cart"
+                    onClick={toggleCart}
+                    className="btn-secondary w-full text-center block"
+                  >
+                    Sepeti Görüntüle
+                  </Link>
+                </div>
                 <p className="text-center text-gray-500 text-xs">
                   Ücretsiz kargo için ₺500 ve üzeri alışveriş yapın
                 </p>

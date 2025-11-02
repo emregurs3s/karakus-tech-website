@@ -25,9 +25,9 @@ const Login = () => {
     try {
       const response = await loginMutation.mutateAsync({ email, password });
       
-      if (response.success) {
+      if ((response as any).success) {
         // Auth store'a kaydet
-        login(response.data.token, response.data.user);
+        login((response as any).data.token, (response as any).data.user);
         
         // localStorage'a da manuel kaydet (ImageUpload için)
         localStorage.setItem('token', response.data.token);
@@ -47,8 +47,36 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* Left Side - Image */}
+      <div className="hidden sm:flex lg:w-1/2 relative">
+        <img
+          src="/auth-bg.jpg"
+          alt="Karakuş Tech"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+          <div className="text-center text-white">
+            <h1 className="text-4xl font-bold mb-4">Karakuş Tech</h1>
+            <p className="text-xl">En kaliteli teknoloji ürünleri</p>
+          </div>
+        </div>
+      </div>
+      
+      {/* Right Side - Form */}
+      <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-20 xl:px-24">
+        {/* Mobile Image - Show only on mobile */}
+        <div className="sm:hidden mb-8 mx-auto">
+          <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200">
+            <img
+              src="/auth-bg.jpg"
+              alt="Karakuş Tech"
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </div>
+        
+        <div className="mx-auto w-full max-w-sm lg:w-96">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -73,12 +101,12 @@ const Login = () => {
         </motion.div>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="mt-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="bg-white py-8 px-4 shadow-lg sm:rounded-lg sm:px-10 border border-gray-200"
+          className="bg-white py-8 px-8 shadow-lg rounded-lg border border-gray-200"
         >
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
@@ -150,40 +178,9 @@ const Login = () => {
             </div>
           </form>
 
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
-              </div>
-              <div className="relative flex justify-center body-sm">
-                <span className="px-2 bg-white text-gray-500">{t('auth.testAccounts')}</span>
-              </div>
-            </div>
 
-            <div className="mt-6 grid grid-cols-1 gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  setEmail('admin@karakustech.com');
-                  setPassword('admin123');
-                }}
-                className="btn-secondary w-full"
-              >
-                {t('auth.adminAccount')}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setEmail('user@karakustech.com');
-                  setPassword('user123');
-                }}
-                className="btn-secondary w-full"
-              >
-                {t('auth.userAccount')}
-              </button>
-            </div>
-          </div>
         </motion.div>
+        </div>
       </div>
     </div>
   );

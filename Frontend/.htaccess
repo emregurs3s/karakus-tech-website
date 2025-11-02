@@ -1,0 +1,15 @@
+RewriteEngine On
+
+# Admin klasörünü exclude et
+RewriteCond %{REQUEST_URI} !^/admin/
+RewriteCond %{REQUEST_URI} !^/api/
+
+# Static dosyalar için exclude
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# SPA routing
+RewriteRule . /index.html [L]
+
+# Error handling
+ErrorDocument 404 /index.html

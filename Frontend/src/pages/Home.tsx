@@ -19,10 +19,10 @@ const Home = () => {
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <div
-          className="absolute inset-0 bg-cover bg-no-repeat"
+          className="absolute inset-0 bg-contain bg-no-repeat bg-center"
           style={{ 
             backgroundImage: `url(${heroContent.backgroundImage})`,
-            backgroundPosition: '30% 60%' // %30 sola, %60 (Apple logosu gözüksün diye aşağı)
+            backgroundSize: '60%' // Logo boyutunu %60'a küçült
           }}
         >
           <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/30 to-black/50" />

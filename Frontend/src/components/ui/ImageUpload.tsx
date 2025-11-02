@@ -1,6 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
-import axios from 'axios';
-import { useAuthStore } from '../../store/authStore';
+import { useState, useEffect } from 'react';
 
 interface ImageUploadProps {
   onImagesChange: (images: string[]) => void;
@@ -9,234 +7,171 @@ interface ImageUploadProps {
   maxFiles?: number;
 }
 
-interface UploadedFile {
-  url: string;
-  filename: string;
-  originalName: string;
-  size: number;
-}
-
 const ImageUpload = ({ 
   onImagesChange, 
   initialImages = [], 
-  multiple = true, 
+  multiple = false, 
   maxFiles = 5 
 }: ImageUploadProps) => {
   const [images, setImages] = useState<string[]>(initialImages);
-  const [uploading, setUploading] = useState(false);
-  const [dragOver, setDragOver] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const { token } = useAuthStore();
+  const [newImageUrl, setNewImageUrl] = useState('');
+  const [isValidUrl, setIsValidUrl] = useState(false);
 
-  // Update images when initialImages prop changes
   useEffect(() => {
     setImages(initialImages);
   }, [initialImages]);
 
-  const handleFileSelect = async (files: FileList) => {
-    if (!files.length) return;
+  useEffect(() => {
+    onImagesChange(images);
+  }, [images, onImagesChange]);
 
-    const fileArray = Array.from(files);
+  // URL validation
+  const validateImageUrl = (url: string) => {
+    const imageUrlPattern = /\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i;
+    const isValidHttpUrl = url.startsWith('http://') || url.startsWith('https://');
+    return isValidHttpUrl && imageUrlPattern.test(url);
+  };
+
+  const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const url = e.target.value;
+    setNewImageUrl(url);
+    setIsValidUrl(validateImageUrl(url));
+  };
+
+  const addImageUrl = () => {
+    if (!isValidUrl || !newImageUrl.trim()) return;
     
-    // Check file count limit
-    if (multiple && images.length + fileArray.length > maxFiles) {
-      alert(`Maksimum ${maxFiles} dosya yükleyebilirsiniz`);
-      return;
-    }
-
-    if (!multiple && fileArray.length > 1) {
-      alert('Sadece bir dosya yükleyebilirsiniz');
-      return;
-    }
-
-    // Validate file types
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    const invalidFiles = fileArray.filter(file => !validTypes.includes(file.type));
-    
-    if (invalidFiles.length > 0) {
-      alert('Sadece JPEG, JPG ve PNG dosyaları yükleyebilirsiniz');
-      return;
-    }
-
-    // Check file sizes (5MB limit)
-    const oversizedFiles = fileArray.filter(file => file.size > 5 * 1024 * 1024);
-    if (oversizedFiles.length > 0) {
-      alert('Dosya boyutu 5MB\'dan küçük olmalıdır');
-      return;
-    }
-
-    setUploading(true);
-
-    try {
-      const formData = new FormData();
-      
-      if (multiple) {
-        fileArray.forEach(file => {
-          formData.append('images', file);
-        });
-      } else {
-        formData.append('image', fileArray[0]);
-      }
-
-      const endpoint = multiple ? '/api/admin/upload/multiple' : '/api/admin/upload/single';
-      
-      console.log('Upload token:', token); // Debug için
-      
-      if (!token) {
-        alert('Giriş yapmanız gerekiyor');
+    if (multiple) {
+      if (images.length >= maxFiles) {
+        alert(`Maksimum ${maxFiles} resim ekleyebilirsiniz`);
         return;
       }
-      
-      const response = await axios.post(endpoint, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.data.success) {
-        let newImageUrls: string[];
-        
-        if (multiple) {
-          const uploadedFiles: UploadedFile[] = response.data.data;
-          newImageUrls = uploadedFiles.map(file => file.url);
-        } else {
-          const uploadedFile: UploadedFile = response.data.data;
-          newImageUrls = [uploadedFile.url];
-        }
-
-        const updatedImages = multiple ? [...images, ...newImageUrls] : newImageUrls;
-        setImages(updatedImages);
-        onImagesChange(updatedImages);
-      }
-    } catch (error) {
-      console.error('Upload error:', error);
-      alert('Dosya yüklenirken hata oluştu');
-    } finally {
-      setUploading(false);
+      setImages(prev => [...prev, newImageUrl.trim()]);
+    } else {
+      setImages([newImageUrl.trim()]);
     }
-  };
-
-  const handleRemoveImage = async (imageUrl: string) => {
-    // Önce listeden kaldır
-    const updatedImages = images.filter(img => img !== imageUrl);
-    setImages(updatedImages);
-    onImagesChange(updatedImages);
-
-    // Sonra backend'den silmeye çalış (sessizce)
-    try {
-      const filename = imageUrl.split('/').pop();
-      
-      if (imageUrl.startsWith('/uploads/') && filename) {
-        await axios.delete(`/api/admin/upload/${filename}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-      }
-    } catch (error: any) {
-      // Sessizce hata yönet, kullanıcıya gösterme
-      console.warn('Dosya backend\'den silinemedi (bu normal olabilir):', error.response?.status);
-    }
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDragOver(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDragOver(false);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDragOver(false);
     
-    const files = e.dataTransfer.files;
-    handleFileSelect(files);
+    setNewImageUrl('');
+    setIsValidUrl(false);
   };
 
-  const openFileDialog = () => {
-    fileInputRef.current?.click();
+  const removeImage = (index: number) => {
+    setImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addImageUrl();
+    }
   };
 
   return (
     <div className="space-y-4">
-      {/* Upload Area */}
-      <div
-        className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
-          dragOver 
-            ? 'border-blue-500 bg-blue-50' 
-            : 'border-gray-300 hover:border-gray-400'
-        } ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        onClick={openFileDialog}
-      >
-        <input
-          ref={fileInputRef}
-          type="file"
-          multiple={multiple}
-          accept="image/jpeg,image/jpg,image/png"
-          onChange={(e) => e.target.files && handleFileSelect(e.target.files)}
-          className="hidden"
-        />
-        
-        {uploading ? (
-          <div className="flex items-center justify-center space-x-2">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
-            <span className="text-gray-600">Yükleniyor...</span>
-          </div>
-        ) : (
-          <div>
-            <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-              <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            <p className="text-gray-600 mb-2">
-              Dosyaları buraya sürükleyin veya tıklayın
-            </p>
-            <p className="text-sm text-gray-500">
-              PNG, JPG, JPEG (Maks. 5MB)
-              {multiple && ` - Maksimum ${maxFiles} dosya`}
-            </p>
-          </div>
+      {/* URL Input */}
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">
+          {multiple ? 'Resim URL\'leri Ekle' : 'Resim URL\'si'}
+        </label>
+        <div className="flex gap-2">
+          <input
+            type="url"
+            value={newImageUrl}
+            onChange={handleUrlChange}
+            onKeyPress={handleKeyPress}
+            placeholder="https://github.com/emregurs3s/karakus-images/raw/main/..."
+            className={`flex-1 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              newImageUrl && !isValidUrl ? 'border-red-500' : 'border-gray-300'
+            }`}
+          />
+          <button
+            type="button"
+            onClick={addImageUrl}
+            disabled={!isValidUrl}
+            className={`px-4 py-2 rounded-md font-medium ${
+              isValidUrl
+                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
+          >
+            Ekle
+          </button>
+        </div>
+        {newImageUrl && !isValidUrl && (
+          <p className="text-sm text-red-600">
+            Geçerli bir resim URL'si girin (.jpg, .jpeg, .png, .gif, .webp)
+          </p>
         )}
+        <p className="text-xs text-gray-500">
+          GitHub repository'nizden resim URL'si: 
+          <br />
+          <code className="bg-gray-100 px-1 rounded">
+            https://github.com/emregurs3s/karakus-images/raw/main/categories/resim.jpg
+          </code>
+        </p>
       </div>
 
       {/* Image Preview */}
       {images.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {images.map((imageUrl, index) => (
-            <div key={index} className="relative group">
-              <img
-                src={imageUrl}
-                alt={`Upload ${index + 1}`}
-                className="w-full h-32 object-cover rounded-lg border border-gray-200"
-              />
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleRemoveImage(imageUrl);
-                }}
-                className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
-              >
-                ×
-              </button>
-            </div>
-          ))}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">
+            {multiple ? 'Seçili Resimler' : 'Seçili Resim'}
+          </label>
+          <div className={`grid gap-4 ${multiple ? 'grid-cols-2 md:grid-cols-3' : 'grid-cols-1'}`}>
+            {images.map((imageUrl, index) => (
+              <div key={index} className="relative group">
+                <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                  <img
+                    src={imageUrl}
+                    alt={`Preview ${index + 1}`}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = '/logo.jpg'; // Fallback image
+                    }}
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeImage(index)}
+                  className="absolute top-2 right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  ×
+                </button>
+                <div className="mt-1 text-xs text-gray-500 truncate">
+                  {imageUrl}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
-      {/* Info */}
-      <div className="text-sm text-gray-500">
-        {multiple ? (
-          <p>{images.length} / {maxFiles} dosya yüklendi</p>
-        ) : (
-          images.length > 0 && <p>1 dosya yüklendi</p>
-        )}
+      {/* GitHub Repository Link */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+        <div className="flex items-start space-x-2">
+          <svg className="w-5 h-5 text-blue-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+          </svg>
+          <div className="text-sm">
+            <p className="text-blue-800 font-medium">GitHub Repository Kullanımı</p>
+            <p className="text-blue-700 mt-1">
+              Resimlerinizi{' '}
+              <a 
+                href="https://github.com/emregurs3s/karakus-images" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="underline hover:text-blue-900"
+              >
+                karakus-images repository
+              </a>
+              'sine yükleyin ve "Raw" URL'sini kullanın.
+            </p>
+            <p className="text-blue-600 text-xs mt-1">
+              Örnek: categories/, products/ klasörlerini kullanabilirsiniz.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

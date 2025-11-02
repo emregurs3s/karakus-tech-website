@@ -106,7 +106,7 @@ const Products = () => {
                   </button>
                   {categories.map((category) => (
                     <button
-                      key={category.id}
+                      key={category._id}
                       onClick={() => handleCategoryFilter(category.slug)}
                       className={`block w-full text-left py-2 px-3 rounded transition-colors duration-200 ${
                         categoryFilter === category.slug

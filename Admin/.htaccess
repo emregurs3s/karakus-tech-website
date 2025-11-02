@@ -1,0 +1,11 @@
+RewriteEngine On
+
+# Static dosyalar için exclude
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Admin SPA routing
+RewriteRule . /admin/index.html [L]
+
+# Error handling
+ErrorDocument 404 /admin/index.html

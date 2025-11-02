@@ -27,9 +27,9 @@ const AdminProducts = () => {
   const handleToggleProduct = async (productId: string) => {
     try {
       const response = await toggleProductMutation.mutateAsync(productId);
-      if (response.success) {
+      if ((response as any).success) {
         addToast({
-          message: response.message,
+          message: (response as any).message,
           type: 'success'
         });
         queryClient.invalidateQueries({ queryKey: ['admin', 'products'] });
@@ -49,7 +49,7 @@ const AdminProducts = () => {
 
     try {
       const response = await deleteProductMutation.mutateAsync(productId);
-      if (response.success) {
+      if ((response as any).success) {
         addToast({
           message: t('admin.productDeleted'),
           type: 'success'

@@ -5,37 +5,7 @@ import { motion } from 'framer-motion';
 const Footer = () => {
 
   return (
-    <footer className="bg-white border-t border-gray-200">
-      {/* Newsletter Section */}
-      <div className="bg-black text-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="heading-lg mb-4">Bülten</h2>
-            <p className="body-lg text-gray-300 mb-8 max-w-2xl mx-auto">
-              Yeni ürünler ve kampanyalardan haberdar olmak için bültenimize abone olun.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-              <input
-                type="email"
-                placeholder="E-posta adresiniz"
-                className="flex-1 px-6 py-4 bg-white text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black transition-all duration-200"
-              />
-              <button className="bg-white text-black px-8 py-4 font-medium tracking-wide uppercase text-sm hover:bg-gray-100 transition-colors duration-200 rounded-lg">
-                Abone Ol
-              </button>
-            </div>
-            <p className="text-gray-400 text-sm mt-6">
-              {t('footer.unsubscribe')} <Link to="#" className="underline hover:text-white transition-colors duration-200">{t('footer.read')} {t('footer.privacy')}</Link>.
-            </p>
-          </motion.div>
-        </div>
-      </div>
-
+    <footer className="bg-gray-50 border-t border-gray-200">
       {/* Main Footer */}
       <div className="bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -79,7 +49,7 @@ const Footer = () => {
             {/* Quick Links */}
             <div>
               <h4 className="font-medium text-black mb-4 tracking-wide uppercase text-sm">
-                {t('footer.quickLinks')}
+                Hızlı Linkler
               </h4>
               <ul className="space-y-3">
                 <li>
@@ -87,7 +57,7 @@ const Footer = () => {
                     to="/products"
                     className="text-gray-600 hover:text-black transition-colors duration-200 body-sm"
                   >
-                    {t('footer.allProducts')}
+                    Tüm Ürünler
                   </Link>
                 </li>
                 <li>
@@ -95,7 +65,7 @@ const Footer = () => {
                     to="/products?category=sarj-aletleri"
                     className="text-gray-600 hover:text-black transition-colors duration-200 body-sm"
                   >
-                    {t('footer.shoes')}
+                    Şarj Aletleri
                   </Link>
                 </li>
                 <li>
@@ -103,7 +73,7 @@ const Footer = () => {
                     to="/products?category=airpods-kulaklik"
                     className="text-gray-600 hover:text-black transition-colors duration-200 body-sm"
                   >
-                    {t('footer.clothing')}
+                    Kulaklıklar
                   </Link>
                 </li>
                 <li>
@@ -111,7 +81,7 @@ const Footer = () => {
                     to="/products?category=powerbank"
                     className="text-gray-600 hover:text-black transition-colors duration-200 body-sm"
                   >
-                    {t('footer.accessories')}
+                    Powerbank
                   </Link>
                 </li>
               </ul>
@@ -120,7 +90,7 @@ const Footer = () => {
             {/* Customer Service */}
             <div>
               <h4 className="font-medium text-black mb-4 tracking-wide uppercase text-sm">
-                {t('footer.customerService')}
+                Müşteri Hizmetleri
               </h4>
               <ul className="space-y-3">
                 <li>
@@ -136,7 +106,7 @@ const Footer = () => {
                     href="#"
                     className="text-gray-600 hover:text-black transition-colors duration-200 body-sm"
                   >
-                    {t('footer.contact')}
+                    İletişim
                   </a>
                 </li>
                 <li>
@@ -144,7 +114,7 @@ const Footer = () => {
                     href="#"
                     className="text-gray-600 hover:text-black transition-colors duration-200 body-sm"
                   >
-                    {t('footer.faq')}
+                    SSS
                   </a>
                 </li>
               </ul>
@@ -155,20 +125,20 @@ const Footer = () => {
           <div className="mt-12 pt-8 border-t border-gray-200">
             <div className="flex flex-col md:flex-row justify-between items-center">
               <p className="text-gray-500 body-sm">
-                © 2024 Karakuş Tech. {t('footer.rights')}
+                © 2024 Karakuş Tech. Tüm hakları saklıdır.
               </p>
               <div className="flex space-x-6 mt-4 md:mt-0">
                 <a
                   href="#"
                   className="text-gray-500 hover:text-gray-700 transition-colors duration-200 body-sm"
                 >
-                  {t('footer.privacy')}
+                  Gizlilik Politikası
                 </a>
                 <a
                   href="#"
                   className="text-gray-500 hover:text-gray-700 transition-colors duration-200 body-sm"
                 >
-                  {t('footer.terms')}
+                  Kullanım Şartları
                 </a>
               </div>
             </div>
