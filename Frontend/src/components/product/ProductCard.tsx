@@ -38,20 +38,19 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: index * 0.05 }}
-      viewport={{ once: true }}
-      className="product-card group relative"
-    >
+    <div className="product-card group relative">
       <Link to={`/products/${product.slug}`}>
-        <div className="relative overflow-hidden bg-gray-100 aspect-square mb-4">
+        <div className="relative overflow-hidden bg-gray-100 mb-4" style={{ paddingBottom: '100%', position: 'relative' }}>
           {/* Main Image */}
           <img
             src={product.images?.[0] || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIiBmaWxsPSIjOTk5Ij5Sb1NpbTwvdGV4dD48L3N2Zz4='}
             alt={product.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            width="400"
+            height="400"
+            loading="lazy"
+            decoding="async"
+            className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            style={{ willChange: 'transform' }}
             onError={(e) => {
               const target = e.target as HTMLImageElement;
               target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIiBmaWxsPSIjOTk5Ij5Sb1NpbTwvdGV4dD48L3N2Zz4=';
@@ -63,6 +62,9 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
             <img
               src={product.images[1]}
               alt={product.title}
+              width="400"
+              height="400"
+              loading="lazy"
               className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
@@ -114,9 +116,9 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
             {product.title}
           </h3>
           
-          <p className="text-gray-600 body-sm line-clamp-2 h-10">
+          <div className="text-gray-600 body-sm h-10 overflow-hidden" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
             {product.description}
-          </p>
+          </div>
           
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -172,7 +174,7 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
           </div>
         </div>
       </Link>
-    </motion.div>
+    </div>
   );
 };
 

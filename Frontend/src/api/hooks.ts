@@ -138,8 +138,9 @@ export const useUpdateProduct = () => {
     mutationFn: ({ id, data }: { id: string; data: any }) =>
       apiClient.put(`/admin/products/${id}`, data),
   });
-};// Order M
-anagement hooks
+};
+
+// Order Management hooks
 export const useAdminOrders = (filters: any = {}) => {
   return useQuery({
     queryKey: ['admin', 'orders', filters],

@@ -25,11 +25,26 @@ const ImageUpload = ({
     onImagesChange(images);
   }, [images, onImagesChange]);
 
-  // URL validation
+  // URL validation - more flexible for GitHub raw URLs
   const validateImageUrl = (url: string) => {
-    const imageUrlPattern = /\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i;
+    // Check if it's a valid HTTP/HTTPS URL
     const isValidHttpUrl = url.startsWith('http://') || url.startsWith('https://');
-    return isValidHttpUrl && imageUrlPattern.test(url);
+    
+    if (!isValidHttpUrl) return false;
+    
+    // Check for image extensions (more flexible)
+    const imageUrlPattern = /\.(jpg|jpeg|png|gif|webp|bmp|svg)(\?.*)?$/i;
+    
+    // Special case for GitHub raw URLs - they might not have extensions in the URL
+    const isGitHubRaw = url.includes('raw.githubusercontent.com') || url.includes('github.com') && url.includes('/raw/');
+    
+    // If it's a GitHub raw URL, be more lenient
+    if (isGitHubRaw) {
+      return true;
+    }
+    
+    // For other URLs, check for image extensions
+    return imageUrlPattern.test(url);
   };
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -120,14 +135,23 @@ const ImageUpload = ({
           <div className={`grid gap-4 ${multiple ? 'grid-cols-2 md:grid-cols-3' : 'grid-cols-1'}`}>
             {images.map((imageUrl, index) => (
               <div key={index} className="relative group">
-                <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                <div className="bg-gray-100 rounded-lg overflow-hidden" style={{ paddingBottom: '100%', position: 'relative' }}>
                   <img
                     src={imageUrl}
                     alt={`Preview ${index + 1}`}
-                    className="w-full h-full object-cover"
+                    loading="lazy"
+                    className="absolute inset-0 w-full h-full object-cover"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
-                      target.src = '/logo.jpg'; // Fallback image
+                      // Try to show a placeholder or error state
+                      target.style.display = 'none';
+                      const parent = target.parentElement;
+                      if (parent && !parent.querySelector('.error-placeholder')) {
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'error-placeholder flex items-center justify-center absolute inset-0 w-full h-full bg-gray-200 text-gray-500 text-sm';
+                        errorDiv.innerHTML = '❌<br/>Resim yüklenemedi';
+                        parent.appendChild(errorDiv);
+                      }
                     }}
                   />
                 </div>

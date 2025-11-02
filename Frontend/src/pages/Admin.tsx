@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { Navigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -12,6 +12,14 @@ const Admin = () => {
   const { isAuthenticated, isAdmin } = useAuthStore();
   const [activeTab, setActiveTab] = useState('dashboard');
   const { data: dashboardData, isLoading } = useAdminDashboard();
+
+  // Add admin-panel class to html element to disable smooth scrolling
+  useEffect(() => {
+    document.documentElement.classList.add('admin-panel');
+    return () => {
+      document.documentElement.classList.remove('admin-panel');
+    };
+  }, []);
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;

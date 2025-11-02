@@ -17,9 +17,19 @@ body {
   background-color: #ffffff;
 }
 
-/* Allbirds benzeri smooth scrolling */
-html {
+/* Allbirds benzeri smooth scrolling - only for main site, not admin */
+html:not(.admin-panel) {
   scroll-behavior: smooth;
+}
+
+/* Prevent layout shift during image loading */
+img {
+  content-visibility: auto;
+}
+
+/* Admin panel - disable smooth scrolling to prevent mouse scroll issues */
+html.admin-panel {
+  scroll-behavior: auto;
 }
 
 /* Custom scrollbar */
@@ -61,6 +71,9 @@ html {
   /* Product card hover effects */
   .product-card {
     @apply transition-all duration-300 ease-in-out;
+    /* Prevent layout shift */
+    contain: layout;
+    will-change: transform;
   }
 
   .product-card:hover {
@@ -145,4 +158,33 @@ html {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
+}/* Admin 
+Panel Specific Styles */
+.admin-panel {
+  /* Prevent momentum scrolling on iOS */
+  -webkit-overflow-scrolling: auto;
+  /* Ensure normal scroll behavior */
+  overscroll-behavior: auto;
+}
+
+.admin-panel body {
+  /* Prevent any scroll behavior issues */
+  scroll-behavior: auto !important;
+  /* Ensure proper overflow handling */
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* Fix for admin tables and containers */
+.admin-panel .overflow-x-auto {
+  /* Prevent horizontal scroll issues */
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+/* Disable smooth scrolling for admin modals and dropdowns */
+.admin-panel .modal,
+.admin-panel .dropdown,
+.admin-panel select {
+  scroll-behavior: auto !important;
 }

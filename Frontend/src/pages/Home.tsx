@@ -114,11 +114,14 @@ const Home = () => {
                 className="group cursor-pointer"
               >
                 <Link to={`/products?category=${category.slug}`}>
-                  <div className="relative overflow-hidden bg-gray-100 aspect-square mb-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
+                  <div className="relative overflow-hidden bg-gray-100 mb-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300" style={{ paddingBottom: '100%' }}>
                     <img
                       src={category.image}
                       alt={category.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                      width="600"
+                      height="600"
+                      loading="lazy"
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                     
@@ -165,14 +168,14 @@ const Home = () => {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8" style={{ minHeight: '500px' }}>
             {bestSellersLoading ? (
               [...Array(4)].map((_, index) => (
                 <LoadingSkeleton key={index} />
               ))
             ) : (
-              featuredProducts.map((product, index) => (
-                <ProductCard key={product._id} product={product} index={index} />
+              featuredProducts.map((product) => (
+                <ProductCard key={product._id} product={product} />
               ))
             )}
           </div>

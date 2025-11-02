@@ -267,6 +267,8 @@ const Checkout = () => {
                     <img
                       src={item.image}
                       alt={item.title}
+                      width="64"
+                      height="64"
                       className="w-16 h-16 object-cover rounded-md"
                     />
                     <div className="flex-1">
