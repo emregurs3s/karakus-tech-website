@@ -36,3 +36,7 @@ Thumbs.db
 .cache
 
 /.rules
+
+# Security - Hassas bilgiler içeren dosyalar
+SECURITY.md
+ADMIN_CREDENTIALS.txt

@@ -130,11 +130,11 @@ const seedData = async () => {
     await Product.insertMany(products);
     console.log('Products inserted');
 
-    // Create admin user
+    // Create admin user - GÜÇLÜ ŞİFRE KULLANIN!
     const adminUser = new User({
-      name: 'Admin',
+      name: 'karakustech',
       email: 'admin@karakustech.com',
-      password: 'admin123',
+      password: 'aliqq123456789AEK', // Güçlü şifre
       roles: ['admin', 'user']
     });
     await adminUser.save();
@@ -151,19 +151,17 @@ const seedData = async () => {
     console.log('Regular user created');
 
     console.log('✅ Seed data inserted successfully!');
-    console.log('👤 Admin: admin@karakustech.com / admin123');
+    console.log('👤 Admin: admin@karakustech.com / [ŞİFRE GİZLİ]');
     console.log('👤 User: user@karakustech.com / user123');
 
-    // Only exit if running directly (not from endpoint)
-    if (require.main === module) {
-      process.exit(0);
-    }
+    // Close connection and exit
+    await mongoose.connection.close();
+    console.log('MongoDB connection closed');
+    process.exit(0);
   } catch (error) {
     console.error('❌ Seed data error:', error);
-    if (require.main === module) {
-      process.exit(1);
-    }
-    throw error; // Re-throw for endpoint handling
+    await mongoose.connection.close();
+    process.exit(1);
   }
 };
 
